@@ -40,6 +40,8 @@ function reducer(state, action) {
       return { ...state, index: state.index + 1, answer: null };
     case "finish":
       return { ...state, status: "finished" };
+    case "restart":
+      return { ...initialState, status: "ready", questions: state.questions };
 
     default:
       return state;
@@ -95,7 +97,7 @@ function App() {
           </>
         )}
         {status === "finished" && (
-          <Finish points={points} maxPoints={maxPoints} />
+          <Finish points={points} maxPoints={maxPoints} dispatch={dispatch} />
         )}
       </Main>
     </div>
