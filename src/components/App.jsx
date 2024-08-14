@@ -8,15 +8,23 @@ import Question from "./Question.jsx";
 import NextBtn from "./NextBtn.jsx";
 import Progress from "./Progress.jsx";
 import Finish from "./Finish.jsx";
+import Footer from "./Footer.jsx";
+import Timer from "./Timer.jsx";
 
 const initialState = {
   questions: [],
   // loading, error, ready, active, finished
   status: "loading",
+  // TODO: permit navigation backward
   index: 0,
+  // TODO: use array to permit changing answer
   answer: null,
   points: 0,
+  secondsRemaining: null,
+  // TODO: add high score property and save it in local storage
 };
+
+const SECS_PER_QUESTION = 10;
 
 function reducer(state, action) {
   switch (action.name) {
@@ -27,7 +35,11 @@ function reducer(state, action) {
     case "error":
       return { ...state, status: "error" };
     case "start":
-      return { ...state, status: "active" };
+      return {
+        ...state,
+        status: "active",
+        secondsRemaining: state.questions.length * SECS_PER_QUESTION,
+      };
     case "newAnswer":
       const question = state.questions[state.index];
       const isCorrect = question.correctOption == action.payload;
@@ -42,6 +54,12 @@ function reducer(state, action) {
       return { ...state, status: "finished" };
     case "restart":
       return { ...initialState, status: "ready", questions: state.questions };
+    case "tick":
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? "finished" : state.status,
+      };
 
     default:
       return state;
@@ -49,10 +67,10 @@ function reducer(state, action) {
 }
 
 function App() {
-  const [{ questions, status, answer, points, index }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [
+    { questions, status, answer, secondsRemaining, points, index },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   const numQuestions = questions.length;
   const maxPoints = questions.reduce((acc, curr) => curr.points + acc, 0);
@@ -88,12 +106,15 @@ function App() {
               answer={answer}
               question={questions[index]}
             />
-            <NextBtn
-              dispatch={dispatch}
-              answer={answer}
-              numQuestions={numQuestions}
-              index={index}
-            />
+            <Footer>
+              <Timer dispatch={dispatch} secondsRemaining={secondsRemaining} />
+              <NextBtn
+                dispatch={dispatch}
+                answer={answer}
+                numQuestions={numQuestions}
+                index={index}
+              />
+            </Footer>
           </>
         )}
         {status === "finished" && (
