@@ -6,6 +6,8 @@ import Error from "./Error.jsx";
 import Start from "./Start.jsx";
 import Question from "./Question.jsx";
 import NextBtn from "./NextBtn.jsx";
+import Progress from "./Progress.jsx";
+import Finish from "./Finish.jsx";
 
 const initialState = {
   questions: [],
@@ -36,6 +38,8 @@ function reducer(state, action) {
 
     case "nextQuestion":
       return { ...state, index: state.index + 1, answer: null };
+    case "finish":
+      return { ...state, status: "finished" };
 
     default:
       return state;
@@ -49,6 +53,7 @@ function App() {
   );
 
   const numQuestions = questions.length;
+  const maxPoints = questions.reduce((acc, curr) => curr.points + acc, 0);
 
   useEffect(() => {
     dispatch({ name: "loading" });
@@ -69,13 +74,28 @@ function App() {
         )}
         {status === "active" && (
           <>
+            <Progress
+              points={points}
+              maxPoints={maxPoints}
+              index={index}
+              numQuestions={numQuestions}
+              answer={answer}
+            />
             <Question
               dispatch={dispatch}
               answer={answer}
               question={questions[index]}
             />
-            <NextBtn dispatch={dispatch} answer={answer} />
+            <NextBtn
+              dispatch={dispatch}
+              answer={answer}
+              numQuestions={numQuestions}
+              index={index}
+            />
           </>
+        )}
+        {status === "finished" && (
+          <Finish points={points} maxPoints={maxPoints} />
         )}
       </Main>
     </div>
