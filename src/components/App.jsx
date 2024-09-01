@@ -75,11 +75,14 @@ function App() {
   const numQuestions = questions.length;
   const maxPoints = questions.reduce((acc, curr) => curr.points + acc, 0);
 
+  // "http://localhost:8000/questions"
   useEffect(() => {
     dispatch({ name: "loading" });
-    fetch("http://localhost:8000/questions")
+    fetch("https://api.jsonbin.io/v3/b/66d47506acd3cb34a87cc64d")
       .then((res) => res.json())
-      .then((data) => dispatch({ name: "dataFetched", payload: data }))
+      .then((data) =>
+        dispatch({ name: "dataFetched", payload: data.record.questions })
+      )
       .catch((err) => dispatch({ name: "error" }));
   }, []);
 
